@@ -29,12 +29,14 @@ fn raydium_amm_events(block: Block) -> Result<RaydiumAmmBlockEvents, Error> {
 
 pub fn parse_block(block: &Block) -> Vec<RaydiumAmmTransactionEvents> {
     let mut block_events: Vec<RaydiumAmmTransactionEvents> = Vec::new();
+    let timestamp = block.block_time.as_ref().unwrap().timestamp;
     for transaction in block.transactions.iter() {
         if let Ok(events) = parse_transaction(transaction) {
             if !events.is_empty() {
                 block_events.push(RaydiumAmmTransactionEvents {
                     signature: utils::transaction::get_signature(&transaction),
                     events,
+                    block_time: timestamp,
                 });
             }
         }

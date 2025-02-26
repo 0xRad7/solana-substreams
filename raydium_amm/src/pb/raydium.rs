@@ -10,7 +10,9 @@ pub struct RaydiumBlockEvents {
 pub struct RaydiumTransactionEvents {
     #[prost(string, tag="1")]
     pub signature: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="2")]
+    #[prost(int64, tag="2")]
+    pub block_time: i64,
+    #[prost(message, repeated, tag="3")]
     pub events: ::prost::alloc::vec::Vec<RaydiumEvent>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
