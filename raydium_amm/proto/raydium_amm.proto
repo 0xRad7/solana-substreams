@@ -9,7 +9,8 @@ message RaydiumAmmBlockEvents {
 message RaydiumAmmTransactionEvents {
     string signature = 1;
     repeated RaydiumAmmEvent events = 2;
-    uint64 blockTime = 3;
+    string block_time = 3;
+    string transaction_index = 4;
 }
 
 message RaydiumAmmEvent {

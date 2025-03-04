@@ -12,8 +12,10 @@ pub struct RaydiumAmmTransactionEvents {
     pub signature: ::prost::alloc::string::String,
     #[prost(message, repeated, tag="2")]
     pub events: ::prost::alloc::vec::Vec<RaydiumAmmEvent>,
-    #[prost(int64, tag="3")]
-    pub block_time: i64,
+    #[prost(string, tag="3")]
+    pub block_time: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub transaction_index: ::prost::alloc::string::String,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
