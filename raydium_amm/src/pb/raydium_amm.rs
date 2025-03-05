@@ -20,7 +20,7 @@ pub struct RaydiumAmmTransactionEvents {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RaydiumAmmEvent {
-    #[prost(oneof="raydium_amm_event::Event", tags="1, 2, 3, 4, 5")]
+    #[prost(oneof="raydium_amm_event::Event", tags="1, 2, 3, 4, 5, 6, 7")]
     pub event: ::core::option::Option<raydium_amm_event::Event>,
 }
 /// Nested message and enum types in `RaydiumAmmEvent`.
@@ -38,6 +38,10 @@ pub mod raydium_amm_event {
         WithdrawPnl(super::WithdrawPnlEvent),
         #[prost(message, tag="5")]
         Swap(super::SwapEvent),
+        #[prost(message, tag="6")]
+        Transfer(super::TransferEvent),
+        #[prost(message, tag="7")]
+        TransferWithSeed(super::TransferWithSeedEvent),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -173,5 +177,47 @@ pub struct SwapEvent {
     pub user_pre_balance_in: ::core::option::Option<u64>,
     #[prost(uint64, optional, tag="13")]
     pub user_pre_balance_out: ::core::option::Option<u64>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TransferEvent {
+    #[prost(string, tag="1")]
+    pub funding_account: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub recipient_account: ::prost::alloc::string::String,
+    #[prost(uint64, tag="3")]
+    pub lamports: u64,
+    #[prost(message, optional, tag="4")]
+    pub funding_account_balance: ::core::option::Option<AccountBalance>,
+    #[prost(message, optional, tag="5")]
+    pub recipient_account_balance: ::core::option::Option<AccountBalance>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TransferWithSeedEvent {
+    #[prost(string, tag="1")]
+    pub funding_account: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub base_account: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub recipient_account: ::prost::alloc::string::String,
+    #[prost(uint64, tag="4")]
+    pub lamports: u64,
+    #[prost(string, tag="5")]
+    pub from_seed: ::prost::alloc::string::String,
+    #[prost(string, tag="6")]
+    pub from_owner: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="7")]
+    pub funding_account_balance: ::core::option::Option<AccountBalance>,
+    #[prost(message, optional, tag="8")]
+    pub recipient_account_balance: ::core::option::Option<AccountBalance>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AccountBalance {
+    #[prost(uint64, tag="1")]
+    pub pre_balance: u64,
+    #[prost(uint64, tag="2")]
+    pub post_balance: u64,
 }
 // @@protoc_insertion_point(module)

@@ -9,11 +9,13 @@ use raydium_amm::instruction::AmmInstruction;
 use raydium_amm::constants::RAYDIUM_AMM_PROGRAM_ID;
 use raydium_amm::log::{decode_ray_log, RayLog};
 
+use substreams_solana_utils::system_program;
 use substreams_solana_utils as utils;
 use utils::instruction::{get_structured_instructions, StructuredInstruction, StructuredInstructions};
 use utils::transaction::{get_context, TransactionContext};
 use utils::pubkey::Pubkey;
 use utils::log::Log;
+use utils::system_program::{SystemInstruction, SYSTEM_PROGRAM_ID};
 
 use spl_token_substream;
 
@@ -55,8 +57,18 @@ pub fn parse_transaction(transaction: &ConfirmedTransaction) -> Result<Vec<Raydi
     let mut context = get_context(transaction)?;
     let instructions = get_structured_instructions(transaction)?;
     for instruction in instructions.flattened().iter() {
+        if instruction.program_id() == SYSTEM_PROGRAM_ID {
+            match parse_system_program_instruction(instruction, &context) {
+                Ok(event) => {
+                    events.push(RaydiumAmmEvent { event });
+                },
+                Err(e) => return Err(anyhow!("Failed to parse transaction {} with error: {}", context.signature, e))
+            }
+        }
+
         context.update_balance(&instruction.instruction);
         if instruction.program_id() != RAYDIUM_AMM_PROGRAM_ID {
+            
             continue;
         }
 
@@ -71,6 +83,35 @@ pub fn parse_transaction(transaction: &ConfirmedTransaction) -> Result<Vec<Raydi
         }
     }
     Ok(events)
+}
+
+pub fn parse_system_program_instruction<'a>(
+    instruction: &StructuredInstruction<'a>,
+    context: &TransactionContext
+) -> Result<Option<Event>, Error> {
+    if instruction.program_id() != SYSTEM_PROGRAM_ID {
+        return Err(anyhow!("Not a System Program instruction."));
+    }
+    let unpacked: SystemInstruction = SystemInstruction::unpack(&instruction.data())?;
+    match unpacked {
+        SystemInstruction::CreateAccount(_create_account) => Ok(None),
+        SystemInstruction::Assign(_assign) => Ok(None),
+        SystemInstruction::Transfer(transfer) => {
+            _parse_transfer_instruction(instruction, context, &transfer).map(|x| Some(Event::Transfer(x)))
+        },
+        SystemInstruction::CreateAccountWithSeed(_create_account_with_seed) => Ok(None),
+        SystemInstruction::AdvanceNonceAccount => Ok(None),
+        SystemInstruction::WithdrawNonceAccount(_lamports) => Ok(None),
+        SystemInstruction::InitializeNonceAccount(_pubkey) => Ok(None),
+        SystemInstruction::AuthorizeNonceAccount(_pubkey) => Ok(None),
+        SystemInstruction::Allocate(_allocate) => Ok(None),
+        SystemInstruction::AllocateWithSeed(_allocate_with_seed) => Ok(None),
+        SystemInstruction::AssignWithSeed(_assign_with_seed) => Ok(None),
+        SystemInstruction::TransferWithSeed(transfer_with_seed) => {
+            _parse_transfer_with_seed_instruction(instruction, context, transfer_with_seed).map(|x| Some(Event::TransferWithSeed(x)))
+        },
+        SystemInstruction::UpgradeNonceAccount => Ok(None)
+    }.context("Failed to parse System instruction")
 }
 
 pub fn parse_instruction<'a>(
@@ -332,6 +373,52 @@ fn _parse_withdraw_pnl_instruction(
     }
 }
 
+fn _parse_transfer_instruction(
+    instruction: &StructuredInstruction,
+    context: &TransactionContext,
+    transfer: &system_program::Transfer
+) -> Result<TransferEvent, Error> {
+    let funding_account = instruction.accounts()[0].to_string();
+    let recipient_account = instruction.accounts()[1].to_string();
+    let lamports = transfer.lamports;
+    let funding_account_balance = context.account_balances.get(instruction.instruction.accounts()[0] as usize).map(|x| x.clone().into());
+    let recipient_account_balance = context.account_balances.get(instruction.instruction.accounts()[1] as usize).map(|x| x.clone().into());
+
+    Ok(TransferEvent {
+        funding_account,
+        recipient_account,
+        lamports,
+        funding_account_balance,
+        recipient_account_balance,
+    })
+}
+
+fn _parse_transfer_with_seed_instruction(
+    instruction: &StructuredInstruction,
+    context: &TransactionContext,
+    transfer_with_seed: system_program::TransferWithSeed
+) -> Result<TransferWithSeedEvent, Error> {
+    let funding_account = instruction.accounts()[0].to_string();
+    let base_account = instruction.accounts()[1].to_string();
+    let recipient_account = instruction.accounts()[2].to_string();
+    let from_owner = transfer_with_seed.from_owner.to_string();
+    let from_seed = transfer_with_seed.from_seed.0.clone();
+    let lamports = transfer_with_seed.lamports;
+    let funding_account_balance = context.account_balances.get(instruction.instruction.accounts()[0] as usize).map(|x| x.clone().into());
+    let recipient_account_balance = context.account_balances.get(instruction.instruction.accounts()[1] as usize).map(|x| x.clone().into());
+
+    Ok(TransferWithSeedEvent {
+        funding_account,
+        base_account,
+        recipient_account,
+        from_owner,
+        from_seed,
+        lamports,
+        funding_account_balance,
+        recipient_account_balance,
+    })
+}
+
 fn parse_raydium_log(instruction: &StructuredInstruction) -> Result<RayLog, Error> {
     let re = regex::Regex::new(r"ray_log: (.+)").unwrap();
     let log_message = instruction.logs().as_ref().context("Failed to parse logs due to truncation")?.iter().rev().find_map(|log| {
@@ -347,5 +434,14 @@ fn parse_raydium_log(instruction: &StructuredInstruction) -> Result<RayLog, Erro
             None => return Err(anyhow!("Failed to capture log message")),
         },
         None => return Err(anyhow!("Log message not found")),
+    }
+}
+
+impl From<utils::account::AccountBalance> for AccountBalance {
+    fn from(value: utils::account::AccountBalance) -> Self {
+        Self {
+            pre_balance: value.pre_balance,
+            post_balance: value.post_balance,
+        }
     }
 }

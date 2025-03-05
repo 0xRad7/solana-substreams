@@ -1,8 +1,8 @@
 specVersion: v0.1.0
 package:
   name: 'raydium_amm_events_with_time'
-  version: v0.2.1
-  description: Raydium AMM events substream
+  version: v0.2.2
+  description: Raydium AMM events substream with System Program Transafer events
   url: https://github.com/0xRad7/solana-substreams
   image: ./raydium.png
 
