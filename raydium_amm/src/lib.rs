@@ -56,19 +56,25 @@ pub fn parse_transaction(transaction: &ConfirmedTransaction) -> Result<Vec<Raydi
 
     let mut context = get_context(transaction)?;
     let instructions = get_structured_instructions(transaction)?;
+
+    // 检查是否存在 RAYDIUM_AMM_PROGRAM_ID 的指令
+    let contains_raydium_instruction = instructions.flattened().iter().any(|instruction| instruction.program_id() == RAYDIUM_AMM_PROGRAM_ID);
+    
     for instruction in instructions.flattened().iter() {
-        if instruction.program_id() == SYSTEM_PROGRAM_ID {
+        if instruction.program_id() == SYSTEM_PROGRAM_ID && !contains_raydium_instruction {
+            // 解析系统程序指令，并过滤掉返回值为 None 的情况
             match parse_system_program_instruction(instruction, &context) {
-                Ok(event) => {
-                    events.push(RaydiumAmmEvent { event });
+                Ok(Some(event)) => {
+                    // 仅在返回有效事件时添加到结果中
+                    events.push(RaydiumAmmEvent { event: Some(event) });
                 },
+                Ok(None) => {},
                 Err(e) => return Err(anyhow!("Failed to parse transaction {} with error: {}", context.signature, e))
             }
         }
 
         context.update_balance(&instruction.instruction);
         if instruction.program_id() != RAYDIUM_AMM_PROGRAM_ID {
-            
             continue;
         }
 
