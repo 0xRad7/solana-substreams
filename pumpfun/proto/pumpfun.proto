@@ -15,13 +15,13 @@ message PumpfunEvent {
     oneof event {
         InitializeEvent initialize = 1;
         SetParamsEvent set_params = 2;
-        SwapEvent swap = 3;
-        WithdrawEvent withdraw = 4;
-        CreateEvent create = 5;
+        PumpfunSwapEvent pumpfun_swap = 3;
+        PumpfunWithdrawEvent pumpfun_withdraw = 4;
+        PumpfunCreateEvent pumpfun_create = 5;
     }
 }
 
-message CreateEvent {
+message PumpfunCreateEvent {
     string user = 1;
     string name = 2;
     string symbol = 3;
@@ -46,7 +46,7 @@ message SetParamsEvent {
     uint64 fee_basis_points = 7;
 }
 
-message SwapEvent {
+message PumpfunSwapEvent {
     string user = 1;
     string mint = 2;
     string bonding_curve = 3;
@@ -60,6 +60,6 @@ message SwapEvent {
     optional uint64 user_token_pre_balance = 11;
 }
 
-message WithdrawEvent {
+message PumpfunWithdrawEvent {
     string mint = 1;
 }

@@ -20,7 +20,7 @@ pub struct RaydiumAmmTransactionEvents {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RaydiumAmmEvent {
-    #[prost(oneof="raydium_amm_event::Event", tags="1, 2, 3, 4, 5, 6, 7")]
+    #[prost(oneof="raydium_amm_event::Event", tags="1, 2, 3, 4, 5, 6, 7, 8, 9, 10")]
     pub event: ::core::option::Option<raydium_amm_event::Event>,
 }
 /// Nested message and enum types in `RaydiumAmmEvent`.
@@ -42,6 +42,12 @@ pub mod raydium_amm_event {
         Transfer(super::TransferEvent),
         #[prost(message, tag="7")]
         TransferWithSeed(super::TransferWithSeedEvent),
+        #[prost(message, tag="8")]
+        PumpfunSwap(super::PumpfunSwapEvent),
+        #[prost(message, tag="9")]
+        PumpfunWithdraw(super::PumpfunWithdrawEvent),
+        #[prost(message, tag="10")]
+        PumpfunCreate(super::PumpfunCreateEvent),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -219,5 +225,57 @@ pub struct AccountBalance {
     pub pre_balance: u64,
     #[prost(uint64, tag="2")]
     pub post_balance: u64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PumpfunCreateEvent {
+    #[prost(string, tag="1")]
+    pub user: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub symbol: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub uri: ::prost::alloc::string::String,
+    #[prost(string, tag="5")]
+    pub mint: ::prost::alloc::string::String,
+    #[prost(string, tag="6")]
+    pub bonding_curve: ::prost::alloc::string::String,
+    #[prost(string, tag="7")]
+    pub associated_bonding_curve: ::prost::alloc::string::String,
+    #[prost(string, tag="8")]
+    pub metadata: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PumpfunSwapEvent {
+    #[prost(string, tag="1")]
+    pub user: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub mint: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub bonding_curve: ::prost::alloc::string::String,
+    #[prost(uint64, optional, tag="4")]
+    pub sol_amount: ::core::option::Option<u64>,
+    #[prost(uint64, tag="5")]
+    pub token_amount: u64,
+    #[prost(string, tag="6")]
+    pub direction: ::prost::alloc::string::String,
+    #[prost(uint64, optional, tag="7")]
+    pub virtual_sol_reserves: ::core::option::Option<u64>,
+    #[prost(uint64, optional, tag="8")]
+    pub virtual_token_reserves: ::core::option::Option<u64>,
+    #[prost(uint64, optional, tag="9")]
+    pub real_sol_reserves: ::core::option::Option<u64>,
+    #[prost(uint64, optional, tag="10")]
+    pub real_token_reserves: ::core::option::Option<u64>,
+    #[prost(uint64, optional, tag="11")]
+    pub user_token_pre_balance: ::core::option::Option<u64>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PumpfunWithdrawEvent {
+    #[prost(string, tag="1")]
+    pub mint: ::prost::alloc::string::String,
 }
 // @@protoc_insertion_point(module)

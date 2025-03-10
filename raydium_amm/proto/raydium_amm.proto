@@ -22,6 +22,9 @@ message RaydiumAmmEvent {
         SwapEvent swap = 5;
         TransferEvent transfer = 6;
         TransferWithSeedEvent transfer_with_seed = 7;
+        PumpfunSwapEvent pumpfun_swap = 8;
+        PumpfunWithdrawEvent pumpfun_withdraw = 9;
+        PumpfunCreateEvent pumpfun_create = 10;
     }
 }
 
@@ -119,4 +122,33 @@ message TransferWithSeedEvent {
 message AccountBalance {
     uint64 pre_balance = 1;
     uint64 post_balance = 2;
+}
+
+message PumpfunCreateEvent {
+    string user = 1;
+    string name = 2;
+    string symbol = 3;
+    string uri = 4;
+    string mint = 5;
+    string bonding_curve = 6;
+    string associated_bonding_curve = 7;
+    string metadata = 8;
+}
+
+message PumpfunSwapEvent {
+    string user = 1;
+    string mint = 2;
+    string bonding_curve = 3;
+    optional uint64 sol_amount = 4;
+    uint64 token_amount = 5;
+    string direction = 6;
+    optional uint64 virtual_sol_reserves = 7;
+    optional uint64 virtual_token_reserves = 8;
+    optional uint64 real_sol_reserves = 9;
+    optional uint64 real_token_reserves = 10;
+    optional uint64 user_token_pre_balance = 11;
+}
+
+message PumpfunWithdrawEvent {
+    string mint = 1;
 }

@@ -29,16 +29,16 @@ pub mod pumpfun_event {
         #[prost(message, tag="2")]
         SetParams(super::SetParamsEvent),
         #[prost(message, tag="3")]
-        Swap(super::SwapEvent),
+        PumpfunSwap(super::PumpfunSwapEvent),
         #[prost(message, tag="4")]
-        Withdraw(super::WithdrawEvent),
+        PumpfunWithdraw(super::PumpfunWithdrawEvent),
         #[prost(message, tag="5")]
-        Create(super::CreateEvent),
+        PumpfunCreate(super::PumpfunCreateEvent),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct CreateEvent {
+pub struct PumpfunCreateEvent {
     #[prost(string, tag="1")]
     pub user: ::prost::alloc::string::String,
     #[prost(string, tag="2")]
@@ -82,7 +82,7 @@ pub struct SetParamsEvent {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SwapEvent {
+pub struct PumpfunSwapEvent {
     #[prost(string, tag="1")]
     pub user: ::prost::alloc::string::String,
     #[prost(string, tag="2")]
@@ -108,7 +108,7 @@ pub struct SwapEvent {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct WithdrawEvent {
+pub struct PumpfunWithdrawEvent {
     #[prost(string, tag="1")]
     pub mint: ::prost::alloc::string::String,
 }

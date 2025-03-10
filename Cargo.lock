@@ -578,6 +578,7 @@ dependencies = [
  "arrayref",
  "base64",
  "bincode",
+ "borsh",
  "bs58 0.5.1",
  "bytemuck",
  "lazy_static",
@@ -589,6 +590,7 @@ dependencies = [
  "substreams",
  "substreams-solana",
  "substreams-solana-utils",
+ "system-program-substream",
 ]
 
 [[package]]

@@ -1,35 +1,44 @@
-# solana-substreams
-Solana substreams monorepo.
+# solana-dex-with-sol-events
+Stream Solana Dex events and SOL Transfer events with [substreams](https://substreams.streamingfast.io).
 
-## Getting started
 
-Try out a module directly from the command line with `substreams`:
+## Attension 
+
+To meet my new Solana data requirements, I have expanded it and added some features. It now includes Sol transfer events and pumpfun events.
+
+**This is due to my specific needs and it is not universal. Please be cautious when using it.**
+
+## Usage
+
+- First step into the project raydium_amm folder
+```bash
+cd raydium_amm
+```
+
+- Second step, run the substreams(After You install substreams scripts and config the system env)
 
 ```bash
-# System Program
-substreams gui system-program-events
-# SPL Token
-substream gui spl-token-events
-# Raydium AMM
-substreams gui raydium-amm-events
-# Pumpfun
-substreams gui pumpfun-events
-# MPL Token Metadata
-substreams gui mpl-token-metadata-events
+substreams run substreams.yaml raydium_amm_events -e mainnet.sol.streamingfast.io:443 -s {your_start_block_number} -t +1
 ```
 
-You can access the substreams in this repo either by specifying them as a dependency through `substreams.yaml`, or by using them as libraries (see setup).
+If you see no output, please check that you have set a starting block, e.g. `substreams run substreams.yaml raydium_amm_events -e mainnet.sol.streamingfast.io:443 -s 325766951 -t +1`.
 
-## Setup
-### Library usage
-```toml
-[dependencies]
-substreams-solana-utils = { git = "https://github.com/0xpapercut/substreams-solana-utils", tag = "v0.1.5" } # Mandatory
-system-program-substream = { git = "https://github.com/0xpapercut/solana-substreams", tag = "v0.1.5" }
-spl-token-substream = { git = "https://github.com/0xpapercut/solana-substreams", tag = "v0.1.5" }
-raydium-amm-substream = { git = "https://github.com/0xpapercut/solana-substreams", tag = "v0.1.5" }
-pumpfun-substream = { git = "https://github.com/0xpapercut/solana-substreams", tag = "v0.1.5" }
-mpl-token-metadata-substream = { git = "https://github.com/0xpapercut/solana-substreams", tag = "v0.1.5" }
-```
+## Suported Events 
 
-For a realistic example, checkout [solana-indexer](https://github.com/0xpapercut/solana-indexer).
+### Basic
+
+- InitializeEvent: Raydium AMM initialization event
+- DepositEvent：Raydium AMM deposit event
+- WithdrawEvent:  Raydium AMM withdraw event
+- WithdrawPnlEvent: Raydium AMM withdraw PNL event
+- SwapEvent: Raydium AMM swap event
+
+### Features
+
+- TransferEvent: SOL Transfer event filter the lamports at least 100000, and filter the dex(Raydium\ Pumpfun \ Jupiter) 
+- TransferWithSeedEvent: SOL Transfer with Seed event filter the lamports at least 100000, and filter the dex(Raydium\ Pumpfun \ Jupiter) 
+- PumpfunSwapEvent: Pumpfun swap event（buy or sell）
+- PumpfunWithdrawEvent: Pumpfun withdraw event
+- PumpfunCreateEvent: Pumpfun create event
+    
+For more information, refer to the [protobuf specification](raydium_amm/proto/raydium_amm.proto).

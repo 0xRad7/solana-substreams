@@ -86,16 +86,16 @@ pub fn parse_instruction(
             Ok(Some(Event::SetParams(_parse_set_params_instruction(instruction, context, set_params)?)))
         },
         PumpfunInstruction::Create(create) => {
-            Ok(Some(Event::Create(_parse_create_instruction(instruction, context, create)?)))
+            Ok(Some(Event::PumpfunCreate(_parse_create_instruction(instruction, context, create)?)))
         },
         PumpfunInstruction::Buy(buy) => {
-            Ok(Some(Event::Swap(_parse_buy_instruction(instruction, context, buy)?)))
+            Ok(Some(Event::PumpfunSwap(_parse_buy_instruction(instruction, context, buy)?)))
         }
         PumpfunInstruction::Sell(sell) => {
-            Ok(Some(Event::Swap(_parse_sell_instruction(instruction, context, sell)?)))
+            Ok(Some(Event::PumpfunSwap(_parse_sell_instruction(instruction, context, sell)?)))
         }
         PumpfunInstruction::Withdraw => {
-            Ok(Some(Event::Withdraw(_parse_withdraw_instruction(instruction, context)?)))
+            Ok(Some(Event::PumpfunWithdraw(_parse_withdraw_instruction(instruction, context)?)))
         }
         _ => Ok(None),
     }
@@ -136,11 +136,11 @@ fn _parse_set_params_instruction(
     })
 }
 
-fn _parse_create_instruction(
+pub fn _parse_create_instruction(
     instruction: &StructuredInstruction,
     _context: &TransactionContext,
     create: pumpfun::instruction::CreateInstruction,
-) -> Result<CreateEvent, Error> {
+) -> Result<PumpfunCreateEvent, Error> {
     let user = instruction.accounts()[7].to_string();
     let name = create.name;
     let symbol = create.symbol;
@@ -150,7 +150,7 @@ fn _parse_create_instruction(
     let associated_bonding_curve = instruction.accounts()[2].to_string();
     let metadata = instruction.accounts()[6].to_string();
 
-    Ok(CreateEvent {
+    Ok(PumpfunCreateEvent {
         user,
         name,
         symbol,
@@ -162,11 +162,11 @@ fn _parse_create_instruction(
     })
 }
 
-fn _parse_buy_instruction<'a>(
+pub fn _parse_buy_instruction<'a>(
     instruction: &StructuredInstruction<'a>,
     context: &TransactionContext,
     buy: pumpfun::instruction::BuyInstruction,
-) -> Result<SwapEvent, Error> {
+) -> Result<PumpfunSwapEvent, Error> {
     let mint = instruction.accounts()[2].to_string();
     let bonding_curve = instruction.accounts()[3].to_string();
     let user = instruction.accounts()[6].to_string();
@@ -191,7 +191,7 @@ fn _parse_buy_instruction<'a>(
 
     let direction = "token".to_string();
 
-    Ok(SwapEvent {
+    Ok(PumpfunSwapEvent {
         user,
         mint,
         bonding_curve,
@@ -206,11 +206,11 @@ fn _parse_buy_instruction<'a>(
     })
 }
 
-fn _parse_sell_instruction(
+pub fn _parse_sell_instruction(
     instruction: &StructuredInstruction,
     context: &TransactionContext,
     sell: pumpfun::instruction::SellInstruction,
-) -> Result<SwapEvent, Error> {
+) -> Result<PumpfunSwapEvent, Error> {
     let mint = instruction.accounts()[2].to_string();
     let user = instruction.accounts()[6].to_string();
     let bonding_curve = instruction.accounts()[3].to_string();
@@ -232,7 +232,7 @@ fn _parse_sell_instruction(
     let token_transfer = spl_token_substream::parse_transfer_instruction(token_transfer_instruction.as_ref(), context).map_err(|e| anyhow!(e))?;
     let user_token_pre_balance = token_transfer.source.unwrap().pre_balance;
 
-    Ok(SwapEvent {
+    Ok(PumpfunSwapEvent {
         user,
         mint,
         bonding_curve,
@@ -247,13 +247,13 @@ fn _parse_sell_instruction(
     })
 }
 
-fn _parse_withdraw_instruction(
+pub fn _parse_withdraw_instruction(
     instruction: &StructuredInstruction,
     _context: &TransactionContext,
-) -> Result<WithdrawEvent, Error> {
+) -> Result<PumpfunWithdrawEvent, Error> {
     let mint = instruction.accounts()[2].to_string();
 
-    Ok(WithdrawEvent {
+    Ok(PumpfunWithdrawEvent {
         mint,
     })
 }
